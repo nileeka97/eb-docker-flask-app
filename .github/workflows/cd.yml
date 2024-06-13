@@ -61,6 +61,9 @@ jobs:
           jq '.Image.Name = "${{ needs.build-and-push-to-ecr.outputs.image }}"' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
 
+      - name: Copy Dockerrun.aws.json file to S3 bucket
+        run : aws s3 cp Dockerrun.aws.json s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME}}/
+
 
 
 
