@@ -55,17 +55,6 @@ jobs:
           echo "Updating Dockerrun.aws.json with IMAGE_NAME: $IMAGE_NAME"
           jq --arg image "$IMAGE_NAME" '.Image.Name = $image' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
-          
-      - name: Verify Dockerrun.aws.json
-        run: cat Dockerrun.aws.json
-
-      - name: Copy Dockerrun.aws.json file to S3 bucket
-        run: |
-          aws s3 cp Dockerrun.aws.json s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOYMENTUSER_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOYMENTUSER_SECRET_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION_NAME }}
 
   update-and-push-dockerrun:
     runs-on: ubuntu-latest
