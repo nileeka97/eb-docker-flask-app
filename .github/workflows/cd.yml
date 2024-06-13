@@ -49,7 +49,7 @@ jobs:
 
       - name: Set Docker Image Name
         id: set-image
-        run: echo "::set-output name=image::your-new-docker-image-name"
+        run: echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
     
       - name: Update Dockerrun.aws.json
         run: |
