@@ -17,6 +17,8 @@ jobs:
 
   build-and-push-to-ecr:
     runs-on: ubuntu-latest
+    outputs:
+      image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     steps:
       - name: Git clone our repository
@@ -47,6 +49,8 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
+      - name: Print nice message on completion of CD Pipeline
+        run : echo "${{ steps.build-image.outputs.image }}" 
 
   update-and-push-dockerrun:
     runs-on: ubuntu-latest
@@ -65,12 +69,14 @@ jobs:
 
       - name: Update Dockerrun.aws.json
         run: |
-          IMAGE_NAME="${{ needs.build-and-push-to-ecr.outputs.image }}"
-          jq --arg image "$IMAGE_NAME" '.Image.Name = $image' Dockerrun.aws.json > tmp.json
+          jq '.Image.Name = "${{ needs.build-and-push-to-ecr.outputs.image }}"' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
 
       - name: Copy Dockerrun.aws.json file to S3 bucket
         run : aws s3 cp Dockerrun.aws.json s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME}}/
+
+      - name: Print nice message on completion of CD Pipeline
+        run : echo "${{ needs.build-and-push-to-ecr.outputs.image }}" 
 
 
 
