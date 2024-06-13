@@ -47,11 +47,14 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Fill in the new image ID in Dockerrun.aws.json
-        uses: restackio/update-json-file-action@v2.1
-        with:
-          file: Dockerrun.aws.json
-          fields: "{'Image.Name': 'my-test-name'}"
+      - name: Set Docker Image Name
+        id: set-image
+        run: echo "::set-output name=image::your-new-docker-image-name"
+    
+      - name: Update Dockerrun.aws.json
+        run: |
+          jq '.Image.Name = "${{ steps.set-image.outputs.image }}"' Dockerrun.aws.json > tmp.json
+          mv tmp.json Dockerrun.aws.json
            
       - name: Copy Dockerrun.aws.json file to S3 bucket
         run : aws s3 cp Dockerrun.aws.json s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME}}/
