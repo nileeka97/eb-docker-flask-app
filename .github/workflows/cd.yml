@@ -15,7 +15,7 @@ on:
 
 jobs:
 
-  push_to_ecr:
+  build-and-push-to-ecr:
     runs-on: ubuntu-latest
 
     steps:
@@ -46,18 +46,50 @@ jobs:
           echo "Pushing image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-    
+
+
+  update-and-push-dockerrun:
+    runs-on: ubuntu-latest
+    needs: build-and-push-to-ecr
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Update Dockerrun.aws.json
         run: |
-          jq '.Image.Name = "${{ steps.build-image.outputs.image }}"' Dockerrun.aws.json > tmp.json
+          jq '.Image.Name = "${{ needs.build-and-push-to-ecr.outputs.image }}"' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
-           
-      - name: Copy Dockerrun.aws.json file to S3 bucket
-        run : aws s3 cp Dockerrun.aws.json s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME}}/
 
-  deploy_to_eb:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  deploy-to-eb:
     runs-on: ubuntu-latest
-    needs: [push_to_ecr]
+    needs: update-and-push-dockerrun
 
     steps:
       - name: Configure my AWS Credentials
