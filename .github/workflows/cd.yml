@@ -46,14 +46,10 @@ jobs:
           echo "Pushing image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-      - name: Set Docker Image Name
-        id: set-image
-        run: echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
     
       - name: Update Dockerrun.aws.json
         run: |
-          jq '.Image.Name = "${{ steps.set-image.outputs.image }}"' Dockerrun.aws.json > tmp.json
+          jq '.Image.Name = "${{ steps.build-image.outputs.image }}"' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
            
       - name: Copy Dockerrun.aws.json file to S3 bucket
