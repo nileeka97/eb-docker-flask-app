@@ -65,7 +65,8 @@ jobs:
 
       - name: Update Dockerrun.aws.json
         run: |
-          jq '.Image.Name = "${{ needs.build-and-push-to-ecr.outputs.image }}"' Dockerrun.aws.json > tmp.json
+          IMAGE_NAME="${{ needs.build-and-push-to-ecr.outputs.image }}"
+          jq --arg image "$IMAGE_NAME" '.Image.Name = $image' Dockerrun.aws.json > tmp.json
           mv tmp.json Dockerrun.aws.json
 
       - name: Copy Dockerrun.aws.json file to S3 bucket
