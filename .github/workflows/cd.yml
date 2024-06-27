@@ -78,6 +78,9 @@ jobs:
 
       - name: Deploy our new Application Version
         run : aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
-        
+
+      - name: Waiting for environment to update
+        run : aws elasticbeanstalk wait environment-updated --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
+
       - name: Print nice message on completion of CD Pipeline
         run : echo "Deploment finished successfully" 
