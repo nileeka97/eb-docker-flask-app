@@ -57,6 +57,7 @@ jobs:
 
   deploy_to_eb:
     runs-on: ubuntu-latest
+    timeout-minutes: 7
     needs: [push_to_ecr]
 
     steps:
