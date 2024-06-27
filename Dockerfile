@@ -3,4 +3,4 @@ COPY . /app
 WORKDIR /app
 RUN pip install Flask==1.0.2
 EXPOSE 5000
-CMD ["python2", "application2.py"]
+CMD ["python", "application.py"]
